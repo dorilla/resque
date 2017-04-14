@@ -158,7 +158,7 @@ module Resque
 
     # to make things easier on ourselves
     get "/?" do
-      redirect redirect_url_path(:overview)
+      redirect redirect_url_path(:overview, '?show_workers=' + (params[:show_workers] || false).to_s)
     end
 
     %w( overview workers ).each do |page|
@@ -173,6 +173,7 @@ module Resque
 
     %w( overview queues working workers key ).each do |page|
       get "/#{page}/?" do
+        @show_workers = params[:show_workers] == 'true'
         show page
       end
 
@@ -190,6 +191,7 @@ module Resque
       if Resque::Failure.url
         redirect Resque::Failure.url
       else
+        @failed_per_page_param = params[:failed_per_page] || 1
         show :failed
       end
     end
@@ -282,6 +284,10 @@ module Resque
 
     def resque
       Resque
+    end
+
+    def show_workers
+      @show_workers
     end
 
     def self.tabs
